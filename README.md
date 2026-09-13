@@ -9,23 +9,21 @@ task's checker. A cheap tier's answer is accepted the moment the sandbox says
 it passes; the cascade escalates to a more expensive tier only on an
 **execution-verified failure** — never on a guess.
 
-```
-                       ┌──────────────────────────────────────────────┐
- task + checker        │  nemocascade                                 │
- ────────────────────▶ │                                              │
-                       │   ┌────────┐   ┌───────────┐   ┌─────────┐   │
-                       │   │ Token  │   │ Extract   │   │ Sandbox │   │
-                       │   │Factory │──▶│ code block│──▶│ (Token  │   │
-                       │   │ chat   │   └───────────┘   │ Factory │   │
-                       │   │ completions          │   │ Sandboxes)  │
-                       │   └────────┘        │pass? │   └────┬────┘   │
-                       │        ▲            │      │        │        │
-                       │        │   yes──────┘      │no (verified failure)
-                       │        └───────────────────┘        │        │
-                       │                                     ▼        │
-                       │                          next tier (super/ultra)
-                       │                          armed with failure evidence
-                       └──────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    T["Task + checker"] --> L{"Ladder walk, cheapest tier first:<br/>nano → super → ultra"}
+
+    L -- "chat completion<br/>(Nemotron on Token Factory)" --> A["Extract fenced code block"]
+
+    A -- "no artifact<br/>(verified failure)" --> E["Escalate:<br/>next tier + failure evidence"]
+    A -- "artifact" --> S["Execute checker in sandbox<br/>(Token Factory Sandboxes<br/>or local subprocess)"]
+
+    S -- "pass" --> D["✅ Accepted at this tier<br/>cost + evidence recorded"]
+    S -- "verified failure<br/>(exit ≠ expected)" --> E
+
+    E -- "more tiers left" --> L
+    E -- "ladder exhausted" --> F["❌ Failed cleanly<br/>full trace reported"]
+    L -- "API / sandbox error" --> X["⚠️ Stop task —<br/>infra error ≠ quality failure,<br/>never billed upward"]
 ```
 
 ## Why
