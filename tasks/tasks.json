@@ -1,0 +1,45 @@
+{
+  "solution_path": "solution.py",
+  "image": "tag:python:3.12-slim",
+  "tasks": [
+    {
+      "id": "normalize-name",
+      "prompt": "Write solution.py implementing normalize_name(value: str) -> str: lowercase the input, replace every run of whitespace with a single hyphen, collapse every run of consecutive hyphens into a single hyphen, then strip leading/trailing hyphens. Examples: '  Hello   WORLD  ' -> 'hello-world', '--edge--case--' -> 'edge-case', 'A  B' -> 'a-b'. Use only the Python standard library.",
+      "verify": {
+        "command": ["python3", "check.py"],
+        "expect_exit": 0,
+        "stdout_regex": "^OK$",
+        "timeout": 30,
+        "files": {
+          "check.py": "import solution\n\ndef test_basic():\n    assert solution.normalize_name('  Hello   WORLD  ') == 'hello-world', solution.normalize_name('  Hello   WORLD  ')\n\ndef test_strip_hyphens():\n    assert solution.normalize_name('--edge--case--') == 'edge-case', solution.normalize_name('--edge--case--')\n\ndef test_single():\n    assert solution.normalize_name('A  B') == 'a-b', solution.normalize_name('A  B')\n\ntry:\n    test_basic()\n    test_strip_hyphens()\n    test_single()\nexcept AssertionError as exc:\n    print(f'FAILED: {exc}')\n    raise SystemExit(1)\nprint('OK')\n"
+        }
+      }
+    },
+    {
+      "id": "total-value",
+      "prompt": "Write solution.py implementing total_value(items_csv: str) -> float. The input is CSV text with lines of the form name,quantity,price (quantity is an integer, price is a decimal number). Return the sum of quantity * price over all non-blank lines. Blank lines (including a trailing newline) contribute nothing. Examples: 'widget,2,3.50\\ngadget,1,10.00\\n' -> 17.0, '' -> 0.0. Use only the Python standard library.",
+      "verify": {
+        "command": ["python3", "check.py"],
+        "expect_exit": 0,
+        "stdout_regex": "^OK$",
+        "timeout": 30,
+        "files": {
+          "check.py": "import solution\n\ndef test_two_rows():\n    assert solution.total_value('widget,2,3.50\\ngadget,1,10.00\\n') == 17.0, solution.total_value('widget,2,3.50\\ngadget,1,10.00\\n')\n\ndef test_blank_lines():\n    assert solution.total_value('') == 0.0, solution.total_value('')\n\ndef test_rounding():\n    assert abs(solution.total_value('a,3,0.1\\n') - 0.3) < 1e-9, solution.total_value('a,3,0.1\\n')\n\ntry:\n    test_two_rows()\n    test_blank_lines()\n    test_rounding()\nexcept AssertionError as exc:\n    print(f'FAILED: {exc}')\n    raise SystemExit(1)\nprint('OK')\n"
+        }
+      }
+    },
+    {
+      "id": "balanced-brackets",
+      "prompt": "Write solution.py implementing is_balanced(s: str) -> bool that returns True exactly when every bracket in s is closed by the matching type in the correct order. Bracket types are (), [] and {}. Examples: '([]{})' -> True, '([)]' -> False (wrong order), '(((' -> False, '' -> True. Return real booleans. Use only the Python standard library.",
+      "verify": {
+        "command": ["python3", "check.py"],
+        "expect_exit": 0,
+        "stdout_regex": "^OK$",
+        "timeout": 30,
+        "files": {
+          "check.py": "import solution\n\ndef test_nested():\n    assert solution.is_balanced('([]{})') is True, solution.is_balanced('([]{})')\n\ndef test_interleaved():\n    assert solution.is_balanced('([)]') is False, solution.is_balanced('([)]')\n\ndef test_unclosed():\n    assert solution.is_balanced('(((') is False, solution.is_balanced('(((')\n\ndef test_empty():\n    assert solution.is_balanced('') is True, solution.is_balanced('')\n\ntry:\n    test_nested()\n    test_interleaved()\n    test_unclosed()\n    test_empty()\nexcept AssertionError as exc:\n    print(f'FAILED: {exc}')\n    raise SystemExit(1)\nprint('OK')\n"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "solution_path": "solution.py",
+  "image": "tag:python:3.12-slim",
+  "tasks": [
+    {
+      "id": "prose-only",
+      "prompt": "Describe your approach in prose only. Do not include any code. This task intentionally produces no executable artifact.",
+      "verify": {
+        "command": ["python3", "check.py"],
+        "expect_exit": 0,
+        "timeout": 30,
+        "files": {
+          "check.py": "raise SystemExit(0)\n"
+        }
+      }
+    },
+    {
+      "id": "impossible",
+      "prompt": "This impossible task asks for broken(): a function that must return 43. (The verifier expects 42 vs 43 mismatch to fail every tier.) keyword: impossible",
+      "verify": {
+        "command": ["python3", "check.py"],
+        "expect_exit": 0,
+        "timeout": 30,
+        "files": {
+          "check.py": "import solution\n\ntry:\n    assert solution.broken() == 43, solution.broken()\nexcept AssertionError as exc:\n    print(f'FAILED: {exc}')\n    raise SystemExit(1)\nprint('OK')\n"
+        }
+      }
+    }
+  ]
+}

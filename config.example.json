@@ -1,0 +1,20 @@
+{
+  "ladder": ["nano", "super", "ultra"],
+  "tiers": {
+    "nano": {
+      "model": null,
+      "price_in_per_1m": 0.04,
+      "price_out_per_1m": 0.16
+    },
+    "super": {
+      "model": null,
+      "price_in_per_1m": 0.4,
+      "price_out_per_1m": 1.6
+    },
+    "ultra": {
+      "model": null,
+      "price_in_per_1m": 2.0,
+      "price_out_per_1m": 8.0
+    }
+  }
+}
