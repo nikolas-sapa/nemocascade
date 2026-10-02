@@ -38,7 +38,7 @@ def results_to_json(results: list[TaskResult]) -> dict:
             "success_rate": round(len(succeeded) / len(results), 4) if results else 0.0,
             "escalated": sum(1 for r in results if r.success and len(r.steps) > 1),
             "first_tier_successes": sum(1 for r in results if r.success and len(r.steps) == 1),
-            "total_cost": round(sum(costs), 6) if costs else None,
+            "total_cost": round(sum(costs), 6) if priced else None,
             "priced": priced,
         },
         "tiers": sorted(per_tier.values(), key=lambda t: t["tier"]),
@@ -63,7 +63,7 @@ def json_to_markdown(report: dict) -> str:
         lines.append(f"**Estimated cost:** ${s['total_cost']:.6f} (configured prices)")
     else:
         lines.append(
-            "**Estimated cost:** token counts only — no per-token prices configured."
+            "**Estimated cost:** unavailable (pricing incomplete); known step costs and token counts retained."
         )
 
     lines += ["", "## Tier usage", "",

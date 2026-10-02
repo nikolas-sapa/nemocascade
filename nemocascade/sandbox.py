@@ -105,8 +105,10 @@ class LocalSandbox:
                 )
             except subprocess.TimeoutExpired as exc:
                 return ExecutionResult(
-                    stdout=(exc.stdout or "") if isinstance(exc.stdout, str) else "",
-                    stderr=(exc.stderr or "") if isinstance(exc.stderr, str) else "",
+                    stdout=(exc.stdout.decode("utf-8", errors="replace")
+                            if isinstance(exc.stdout, bytes) else exc.stdout or ""),
+                    stderr=(exc.stderr.decode("utf-8", errors="replace")
+                            if isinstance(exc.stderr, bytes) else exc.stderr or ""),
                     exit_code=-1,
                     timed_out=True,
                     cost=None,

@@ -71,6 +71,27 @@ def test_full_ladder_escalation(mock_base_url):
     assert result.total_cost == pytest.approx(expected)
 
 
+def test_mixed_prices_do_not_report_complete_cost(mock_base_url):
+    cascade = make_cascade(mock_base_url)
+    cascade.ladder[1].price_in_per_1m = None
+    result = cascade.run_task(_task(TASKS, "normalize-name"))
+    assert result.success is True
+    assert len(result.steps) == 2
+    assert result.steps[0].cost is not None
+    assert result.steps[1].cost is None
+    assert result.total_cost is None
+
+
+def test_zero_prices_have_zero_total(mock_base_url):
+    cascade = make_cascade(mock_base_url)
+    for tier in cascade.ladder:
+        tier.price_in_per_1m = 0.0
+        tier.price_out_per_1m = 0.0
+    result = cascade.run_task(_task(TASKS, "normalize-name"))
+    assert result.success is True
+    assert result.total_cost == 0.0
+
+
 def test_no_artifact_escalates_without_sandbox(mock_base_url):
     _base, state = mock_base_url
     cascade = make_cascade(mock_base_url)

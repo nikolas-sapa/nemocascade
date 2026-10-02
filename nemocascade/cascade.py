@@ -199,7 +199,7 @@ class Cascade:
                 break
             prior = self._prior_with(step)
 
-        result.total_cost = sum(costs) if costs else None
+        result.total_cost = sum(costs) if costs and len(costs) == len(result.steps) else None
         return result
 
     @staticmethod

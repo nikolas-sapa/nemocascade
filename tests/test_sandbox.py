@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pytest
 
@@ -66,6 +67,19 @@ def test_local_timeout():
     result = sandbox.run(command=["sleep", "5"], timeout=1)
     assert result.timed_out is True
     assert result.exit_code == -1
+
+
+def test_local_timeout_preserves_captured_bytes():
+    result = LocalSandbox().run(
+        command=[sys.executable, "-c",
+                 "import os, time; os.write(1, 'progress λ\\n'.encode()); "
+                 "os.write(2, b'failure\\xff\\n'); time.sleep(5)"],
+        timeout=0.5,
+    )
+    assert result.timed_out is True
+    assert result.exit_code == -1
+    assert result.stdout == "progress λ\n"
+    assert result.stderr == "failure\ufffd\n"
 
 
 def test_nebius_sandbox_contract(mock_base_url):

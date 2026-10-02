@@ -110,8 +110,9 @@ python3 -m nemocascade.cli run \
 `config.example.json` carries placeholder per-token prices. Real Token Factory
 prices change over time; set `price_in_per_1m` / `price_out_per_1m` from
 [current pricing](https://tokenfactory.nebius.com/models) before quoting cost
-figures. With no prices configured, reports show token counts only and
-explicitly say so — nemocascade never invents a dollar figure.
+figures. Task and suite totals are available only when every attempted step
+has a configured cost. Incomplete pricing leaves totals unknown while retaining
+known per-step costs and token counts; nemocascade never invents a dollar figure.
 
 ## Task suite format
 
