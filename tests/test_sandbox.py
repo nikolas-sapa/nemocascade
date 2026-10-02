@@ -72,8 +72,8 @@ def test_local_timeout():
 def test_local_timeout_preserves_captured_bytes():
     result = LocalSandbox().run(
         command=[sys.executable, "-c",
-                 "import os, time; os.write(1, 'progress λ\\n'.encode()); "
-                 "os.write(2, b'failure\\xff\\n'); time.sleep(5)"],
+                 ("import os, time; os.write(1, 'progress λ\\n'.encode()); "
+                  "os.write(2, b'failure\\xff\\n'); time.sleep(5)")],
         timeout=0.5,
     )
     assert result.timed_out is True
