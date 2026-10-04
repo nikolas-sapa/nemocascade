@@ -41,6 +41,12 @@ class Task:
     verify: dict = field(default_factory=dict)
 
 
+def _required_string(value: object, path: str, context: str, field: str) -> str:
+    if not isinstance(value, str):
+        raise TaskFormatError(f"{path}: {context} '{field}' must be a string")
+    return value
+
+
 def load_tasks(path: str) -> tuple[list[Task], dict]:
     """Load a task suite. Returns (tasks, defaults) where defaults carries
     suite-level fields (solution_path, image) already applied to each task."""
@@ -50,8 +56,12 @@ def load_tasks(path: str) -> tuple[list[Task], dict]:
     if not isinstance(raw, dict) or not isinstance(raw.get("tasks"), list):
         raise TaskFormatError(f"{path}: expected a JSON object with a 'tasks' list")
 
-    default_solution = raw.get("solution_path", "solution.py")
-    default_image = raw.get("image", "tag:python:3.12-slim")
+    default_solution = _required_string(
+        raw.get("solution_path", "solution.py"), path, "suite", "solution_path"
+    )
+    default_image = _required_string(
+        raw.get("image", "tag:python:3.12-slim"), path, "suite", "image"
+    )
 
     tasks: list[Task] = []
     seen: set[str] = set()
@@ -81,8 +91,13 @@ def load_tasks(path: str) -> tuple[list[Task], dict]:
             Task(
                 id=task_id,
                 prompt=entry["prompt"],
-                solution_path=entry.get("solution_path", default_solution),
-                image=entry.get("image", default_image),
+                solution_path=_required_string(
+                    entry.get("solution_path", default_solution),
+                    path, f"task '{task_id}'", "solution_path",
+                ),
+                image=_required_string(
+                    entry.get("image", default_image), path, f"task '{task_id}'", "image"
+                ),
                 verify=verify,
             )
         )

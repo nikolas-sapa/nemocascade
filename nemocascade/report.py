@@ -55,9 +55,11 @@ def json_to_markdown(report: dict) -> str:
     lines = [
         "# nemocascade run report",
         "",
-        f"**Tasks:** {s['tasks']}  ·  **Succeeded:** {s['succeeded']} "
-        f"({s['success_rate']:.0%})  ·  **Solved at first (cheapest) tier:** {s['first_tier_successes']}  ·  "
-        f"**Escalated:** {s['escalated']}",
+        (
+            f"**Tasks:** {s['tasks']}  ·  **Succeeded:** {s['succeeded']} "
+            f"({s['success_rate']:.0%})  ·  **Solved at first (cheapest) tier:** {s['first_tier_successes']}  ·  "
+            f"**Escalated:** {s['escalated']}"
+        ),
     ]
     if s.get("priced") and s.get("total_cost") is not None:
         lines.append(f"**Estimated cost:** ${s['total_cost']:.6f} (configured prices)")

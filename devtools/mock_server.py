@@ -187,7 +187,7 @@ class MockState:
 
 
 def create_server(state: MockState | None = None) -> ThreadingHTTPServer:
-    state = state or MockState()
+    shared_state: MockState = state or MockState()
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):  # silence request logging
@@ -215,9 +215,9 @@ def create_server(state: MockState | None = None) -> ThreadingHTTPServer:
                 self._send(400, {"error": {"message": "file content must be utf-8 text"}})
                 return
             file_uuid = str(uuid_module.uuid4())
-            with state.lock:
-                state.file_uploads.append(content)
-                state.file_store[file_uuid] = content
+            with shared_state.lock:
+                shared_state.file_uploads.append(content)
+                shared_state.file_store[file_uuid] = content
             self._send(201, {
                 "uuid": file_uuid,
                 "sha256": hashlib.sha256(content.encode("utf-8")).hexdigest(),
@@ -237,8 +237,8 @@ def create_server(state: MockState | None = None) -> ThreadingHTTPServer:
                     self._send(401, {"error": {"message": "missing IAM token or project"}})
                     return
                 op_id = self.path[len("/v1/operations/"):-len("/subprocesses/1")]
-                with state.lock:
-                    op = state.operations.get(op_id)
+                with shared_state.lock:
+                    op = shared_state.operations.get(op_id)
                     if op is None:
                         self._send(404, {"error": {"message": "unknown operation"}})
                         return
@@ -280,8 +280,8 @@ def create_server(state: MockState | None = None) -> ThreadingHTTPServer:
                     (k for k in BEHAVIORS if _classify(k, user_text)), None
                 )
                 content = BEHAVIORS.get(keyword, {}).get(tier, PROSE)
-                with state.lock:
-                    state.chat_calls.append({
+                with shared_state.lock:
+                    shared_state.chat_calls.append({
                         "model": model,
                         "keyword": keyword,
                         "messages": payload.get("messages", []),
@@ -308,9 +308,9 @@ def create_server(state: MockState | None = None) -> ThreadingHTTPServer:
                 if not command:
                     self._send(400, {"error": {"message": "command required"}})
                     return
-                with state.lock:
-                    state.spawn_calls.append(payload)
-                    file_store = dict(state.file_store)
+                with shared_state.lock:
+                    shared_state.spawn_calls.append(payload)
+                    file_store = dict(shared_state.file_store)
                 with tempfile.TemporaryDirectory(prefix="mock-sandbox-") as tmp:
                     work_dir = os.path.join(tmp, "work")
                     os.makedirs(work_dir, exist_ok=True)
@@ -329,7 +329,7 @@ def create_server(state: MockState | None = None) -> ThreadingHTTPServer:
                     try:
                         proc = subprocess.run(
                             [command] + list(args), cwd=cwd, capture_output=True,
-                            text=True, timeout=timeout,
+                            text=True, timeout=timeout, check=False,
                             env={"PATH": os.environ.get("PATH", "/usr/bin:/bin"),
                                  "PYTHONIOENCODING": "utf-8"},
                         )
@@ -351,7 +351,7 @@ def create_server(state: MockState | None = None) -> ThreadingHTTPServer:
                                       "core_dump": False, "stopped": False},
                             "resources": {"cost": 0.0021},
                         }
-                op_id = state.record_operation(result)
+                op_id = shared_state.record_operation(result)
                 response = dict(payload)
                 response["uuid"] = str(uuid_module.uuid4())
                 response["result"] = None

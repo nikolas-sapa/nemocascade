@@ -148,7 +148,7 @@ def discover_ladder(
         ladder.append(
             Tier(
                 tier=tier,
-                model=sorted(by_tier[tier])[0],
+                model=min(by_tier[tier]),
                 price_in_per_1m=price_in,
                 price_out_per_1m=price_out,
             )
@@ -202,7 +202,7 @@ def resolve_ladder(client: TokenFactoryClient, config: dict | None) -> list[Tier
                     f"No '{tier}' Nemotron model found in the catalog at "
                     f"{client.base_url}; set tiers.{tier}.model in the config."
                 )
-            model = sorted(by_tier[tier])[0]
+            model = min(by_tier[tier])
         ladder.append(
             Tier(tier=tier, model=model, price_in_per_1m=price_in, price_out_per_1m=price_out)
         )

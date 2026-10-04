@@ -102,6 +102,7 @@ class LocalSandbox:
                     text=True,
                     timeout=effective_timeout,
                     env=_scrubbed_env(env),
+                    check=False,
                 )
             except subprocess.TimeoutExpired as exc:
                 return ExecutionResult(
