@@ -51,6 +51,8 @@ def _maybe_mock(args) -> None:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     host, port = server.server_address[0], server.server_address[1]
+    if isinstance(host, bytes):
+        host = host.decode("utf-8")
     if host == "0.0.0.0":
         host = "127.0.0.1"
     base = f"http://{host}:{port}/v1"

@@ -18,6 +18,7 @@ from __future__ import annotations
 import re
 import time
 from dataclasses import dataclass, field
+from typing import Any
 
 from .client import Tier, TokenFactoryClient
 from .tasks import Task
@@ -143,7 +144,7 @@ class Cascade:
                 if step.cost is not None:
                     costs.append(step.cost)
                 choices = response.get("choices") or []
-                message = {}
+                message: dict[str, Any] = {}
                 if choices and isinstance(choices[0], dict):
                     message = choices[0].get("message") or {}
                 artifact = extract_code_block(message.get("content") or "")
@@ -199,7 +200,7 @@ class Cascade:
                 break
             prior = self._prior_with(step)
 
-        result.total_cost = sum(costs) if costs else None
+        result.total_cost = sum(costs) if costs and len(costs) == len(result.steps) else None
         return result
 
     @staticmethod

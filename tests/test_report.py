@@ -39,7 +39,8 @@ def test_results_to_json_summary():
     assert s["escalated"] == 1
     assert s["first_tier_successes"] == 1
     assert s["priced"] is False  # one task has an unpriced step
-    assert s["total_cost"] == pytest.approx(PASS_COST * 3)
+    assert s["total_cost"] is None
+    assert report["tasks"][0]["steps"][0]["cost"] == pytest.approx(PASS_COST)
 
 
 def test_results_to_json_tier_buckets():
@@ -60,7 +61,14 @@ def test_markdown_report_contents():
     assert "hopeless — FAIL" in md
     assert "| step | tier | model | verdict |" in md
     assert "FAILED: edge-case" in md
-    assert "token counts only" in md  # unpriced steps -> no fake dollar figure
+    assert "pricing incomplete" in md
+
+
+def test_zero_cost_report_is_priced():
+    report = results_to_json([TaskResult(task_id="free", success=True, total_cost=0.0)])
+    assert report["summary"]["priced"] is True
+    assert report["summary"]["total_cost"] == 0.0
+    assert "$0.000000" in json_to_markdown(report)
 
 
 def test_markdown_report_shows_cost_when_priced():

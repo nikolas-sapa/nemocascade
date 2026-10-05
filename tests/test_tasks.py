@@ -52,3 +52,44 @@ def test_missing_prompt_rejected(tmp_path):
     path = _write(tmp_path, {"tasks": [{"id": "a", "verify": {"command": ["true"]}}]})
     with pytest.raises(TaskFormatError, match="prompt"):
         load_tasks(path)
+
+
+@pytest.mark.parametrize("field", ["solution_path", "image"])
+@pytest.mark.parametrize("scope", ["suite", "task"])
+@pytest.mark.parametrize("value", [None, 42, True, [], {}])
+def test_required_string_fields_reject_invalid_json(tmp_path, field, scope, value):
+    task = {"id": "a", "prompt": "p", "verify": {"command": ["true"]}}
+    suite = {"tasks": [task]}
+    target = suite if scope == "suite" else task
+    target[field] = value
+    path = _write(tmp_path, suite)
+
+    with pytest.raises(TaskFormatError) as raised:
+        load_tasks(path)
+
+    message = str(raised.value)
+    assert path in message
+    assert field in message
+    assert ("suite" if scope == "suite" else "task 'a'") in message
+    assert "string" in message
+
+
+@pytest.mark.parametrize("case", ["omitted", "override", "inherit"])
+def test_required_string_fields_keep_defaults_and_overrides(tmp_path, case):
+    task = {"id": "a", "prompt": "p", "verify": {"command": ["true"]}}
+    suite = {"tasks": [task]}
+    expected_defaults = {"solution_path": "solution.py", "image": "tag:python:3.12-slim"}
+    if case != "omitted":
+        expected_defaults = {"solution_path": "suite.py", "image": "suite:image"}
+        suite.update(expected_defaults)
+    expected_task = expected_defaults
+    if case == "override":
+        expected_task = {"solution_path": "task.py", "image": "task:image"}
+        task.update(expected_task)
+
+    tasks, defaults = load_tasks(_write(tmp_path, suite))
+
+    assert defaults == expected_defaults
+    assert len(tasks) == 1
+    assert tasks[0].solution_path == expected_task["solution_path"]
+    assert tasks[0].image == expected_task["image"]
