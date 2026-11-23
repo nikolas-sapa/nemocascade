@@ -24,7 +24,7 @@ jurisdictions are excluded. Solo entry is allowed.
 
 ```bash
 cd nemocascade
-python3 -m pytest tests/ -q                 # expect: 48 passed
+python3 -m pytest tests/ -q                 # expect: 75 passed
 python3 -m nemocascade.cli run --mock --tasks tasks/tasks.json \
   --config config.example.json --out report.json --md-out report.md
 ```

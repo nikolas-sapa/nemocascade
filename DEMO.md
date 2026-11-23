@@ -56,7 +56,7 @@ OpenAI-compatible chat client, the async Sandboxes client (upload → spawn →
 poll), the cascade engine, the reporter — all stdlib. It uses two Nebius
 surfaces — Token Factory inference across Nemotron nano, super and ultra, and
 Token Factory Sandboxes for verification — and the whole behavior is covered
-by 48 tests. Same code runs `--sandbox local` or `--sandbox nebius`. Repo and
+by 75 tests. Same code runs `--sandbox local` or `--sandbox nebius`. Repo and
 setup instructions are in the submission. Thanks for watching."
 
 ## Recording notes

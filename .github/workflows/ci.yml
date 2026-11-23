@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: python -m pip install -e ".[dev]"
+      - name: Test suite (mock backend, no credentials)
+        run: python -m pytest tests/ -q
+      - name: README quickstart (mock demo suite must solve 3/3)
+        run: |
+          python -m nemocascade.cli run --mock \
+            --tasks tasks/tasks.json \
+            --config config.example.json \
+            --out report.json --md-out report.md
+      - name: Negative suite must fail cleanly (exit 1)
+        run: |
+          set +e
+          python -m nemocascade.cli run --mock \
+            --tasks tasks/tasks_negative.json \
+            --config config.example.json \
+            --out negative.json
+          code=$?
+          set -e
+          if [ "$code" -ne 1 ]; then
+            echo "expected exit 1 from negative suite, got $code"
+            exit 1
+          fi
