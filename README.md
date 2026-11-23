@@ -139,7 +139,7 @@ deliberately unsolvable tasks to demonstrate clean failure reporting.
 
 ## What was tested where (honest scope)
 
-- ✅ Full pytest suite (48 tests) against the in-repo mock, covering the
+- ✅ Full pytest suite (75 tests) against the in-repo mock, covering the
   Sandboxes async contract (upload → spawn → 425/200 polling), escalation
   paths, failure paths, auth handling, malformed-response robustness
   (`usage: null`, `content: null`, empty choices), and CLI end-to-end runs.
